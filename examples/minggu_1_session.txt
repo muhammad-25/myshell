@@ -1,0 +1,16 @@
+myshell> ls -la
+Token: ['ls', '-la']
+myshell> cp file1.txt file2.txt
+Token: ['cp', 'file1.txt', 'file2.txt']
+myshell> echo "halo dunia"
+Token: ['echo', 'halo dunia']
+myshell> tokens mkdir "folder baru"
+Token: ['mkdir', 'folder baru']
+myshell> history
+   1  ls -la
+   2  cp file1.txt file2.txt
+   3  echo "halo dunia"
+   4  tokens mkdir "folder baru"
+   5  history
+myshell> exit
+Sampai jumpa!
