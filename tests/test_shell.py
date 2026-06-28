@@ -111,6 +111,69 @@ class ShellTest(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("myshell: parse error:", stderr.getvalue())
 
+    def test_output_redirection(self):
+        import os
+        shell, stdout, stderr = self.make_shell()
+        output_file = "test_output.txt"
+        if os.path.exists(output_file):
+            os.remove(output_file)
+            
+        try:
+            status = shell.execute_line(f"echo test_redirection > {output_file}")
+            self.assertEqual(status, 0)
+            self.assertTrue(os.path.exists(output_file))
+            with open(output_file, "r") as f:
+                content = f.read().strip()
+            self.assertEqual(content, "test_redirection")
+        finally:
+            if os.path.exists(output_file):
+                os.remove(output_file)
+
+    def test_input_redirection(self):
+        import os
+        shell, stdout, stderr = self.make_shell()
+        input_file = "test_input.txt"
+        with open(input_file, "w") as f:
+            f.write("line3\nline1\nline2\n")
+            
+        try:
+            output_file = "test_sorted.txt"
+            if os.path.exists(output_file):
+                os.remove(output_file)
+            status = shell.execute_line(f"sort < {input_file} > {output_file}")
+            self.assertEqual(status, 0)
+            with open(output_file, "r") as f:
+                content = f.read()
+            self.assertEqual(content, "line1\nline2\nline3\n")
+            if os.path.exists(output_file):
+                os.remove(output_file)
+        finally:
+            if os.path.exists(input_file):
+                os.remove(input_file)
+
+    def test_pipe_execution(self):
+        import os
+        shell, stdout, stderr = self.make_shell()
+        output_file = "test_pipe_out.txt"
+        if os.path.exists(output_file):
+            os.remove(output_file)
+            
+        try:
+            cmd = "python3 -c \"print('hello\\nworld')\" | grep hello > " + output_file
+            status = shell.execute_line(cmd)
+            self.assertEqual(status, 0)
+            with open(output_file, "r") as f:
+                content = f.read().strip()
+            self.assertEqual(content, "hello")
+        finally:
+            if os.path.exists(output_file):
+                os.remove(output_file)
+
+    def test_input_redirection_file_not_found(self):
+        shell, stdout, stderr = self.make_shell()
+        status = shell.execute_line("sort < non_existent_xyz_123.txt")
+        self.assertEqual(status, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
